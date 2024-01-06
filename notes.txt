@@ -1,0 +1,171 @@
+
+APIs:
+http://127.0.0.1:8000
+
+Paths
+------
+/api/users/
+/api/groups/
+/api/menu-items
+/api/groups/manager/users
+/api/cart/menu-items
+/api/orders
+
+
+Users already created or to be used 
+-----------------------------------
+0) super user: admin/Admin@789!
+   (http://127.0.0.1:8000/admin)
+1) Manager: Adrian/adr@786! (token: 3cc824b60cf1453547799163019cdd8db1b3ccb5)
+2) Delivery crew: Mario/mar@786! (token: a65ca71835bddd20e6feafc03b68ca38aaae8cc3)
+3) Customers: 
+    Sana/san@786! (token: f558eb4a20bdaa21888b5145411691f950b4b197)
+    Jagadesh/Test123! (token: fd3b2bb788791d4f47951b1eec1f260b457ab4de)
+
+Request Examples (use the above tokens for different users):
+-------------------------------------------------------------
+
+1) Token generation example request method/url/payload: 
+POST http://127.0.0.1:8000/token/login
+{
+	"username": "Adrian",
+	"password": "adr@786!"
+}
+Response:
+{
+	"auth_token": "3cc824b60cf1453547799163019cdd8db1b3ccb5"
+}
+
+
+2.1) Customer adding items to cart:
+POST http://localhost:8000/api/cart/menu-items
+{
+	"menu_id": 1,
+	"quantity": 2
+}
+
+2.2) Customer adding one more item:
+POST http://localhost:8000/api/cart/menu-items
+{
+	"menu_id": 2,
+	"quantity": 3
+}
+
+3) Customer creating the order:
+POST http://localhost:8000/api/orders
+
+
+4) Customer get the order:
+GET http://localhost:8000/api/orders/26
+
+
+5) Manager updating the delivery crew:
+PUT http://localhost:8000/api/orders/26
+{
+	"status": 0,
+	"delivery_crew": 4
+}
+
+6) Delivery crew updating the status:
+PUT http://localhost:8000/api/orders/26
+{
+	"status": 1
+}
+
+7) Manager check orders:
+GET http://localhost:8000/api/orders
+
+Response:
+
+[
+	{
+		"id": 26,
+		"user": 5,
+		"delivery_crew": 4,
+		"status": 1,
+		"total": "36.97",
+		"date": "2024-01-04",
+		"items": [
+			{
+				"id": 1,
+				"menuitem": "Pasta2",
+				"unit_price": "12.99",
+				"quantity": 1,
+				"price": "12.99",
+				"order_id": 26
+			},
+			{
+				"id": 2,
+				"menuitem": "Pasta1",
+				"unit_price": "23.98",
+				"quantity": 2,
+				"price": "23.98",
+				"order_id": 26
+			}
+		]
+	},
+	{
+		"id": 27,
+		"user": 5,
+		"delivery_crew": 4,
+		"status": 0,
+		"total": "36.97",
+		"date": "2024-01-04",
+		"items": [
+			{
+				"id": 3,
+				"menuitem": "Pasta1",
+				"unit_price": "11.99",
+				"quantity": 2,
+				"price": "23.98",
+				"order_id": 27
+			},
+			{
+				"id": 4,
+				"menuitem": "Pasta2",
+				"unit_price": "12.99",
+				"quantity": 1,
+				"price": "12.99",
+				"order_id": 27
+			}
+		]
+	}
+]
+
+8) Pagination:
+
+GET http://localhost:8000/api/orders?perpage=1&page=2
+
+9) Search:
+GET http://localhost:8000/api/orders?search=2024-01-04&to_price=36.97
+
+10) Added Thottling to 
+GET http://127.0.0.1:8000/api/menu-items
+
+Response after 2 calls for anonymous users:
+{
+	"detail": "Request was throttled. Expected available in 59 seconds."
+}
+
+anonymous users: 2/min
+authenticated users: 10/min
+
+Steps to run:
+--------------
+
+pipenv shell
+pipenv install
+$ cd LittleLemon
+$ pipenv install django
+$ pipenv install djangorestframework
+$ pipenv install djoser
+$ python3 manage.py makemigrations
+$ python3 manage.py migrate
+$ python3 manage.py createsuperuser --username admin --email admin@littlelemon.com 
+Password: lemon@789!
+Password (again): lemon@789!
+Superuser created successfully.
+$ python3 manage.py runserver
+
+
+
